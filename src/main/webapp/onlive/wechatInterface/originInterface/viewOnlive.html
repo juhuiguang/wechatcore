@@ -1,0 +1,313 @@
+		<style>
+			tr,td,th,h,p{
+				color:#000000;
+			}
+			i{
+				color:#FFFFFF;
+			}
+			.container {
+				width: 100%;
+				margin: 0px;
+				padding: 15px 25px;
+				background-color: #fafafb;
+			}
+			
+			.header {
+				padding: 20px 25px;
+				border: solid 1px #dedede;
+				border-radius: 0.3em;
+				background: #FFFFFF;
+				margin-bottom: 15px;
+			}
+			
+			.tablediv {
+				padding: 20px;
+				background-color: #FFFFFF;
+				border: solid 1px #dedede;
+				border-radius: 0.3em;
+				overflow-y:scroll;
+			}
+			#formdiv{
+				display: inline-block;
+				vertical-align: bottom;
+			}
+			#rightmodifydiv{
+				float: right;
+				display: inline-block;
+				vertical-align: bottom;
+				padding-right:20px;
+			}
+			#secondSearch{
+				padding-left: 20px;
+			}
+			/* #modifytable{
+				text-align:center;
+			} */ 
+		</style>
+
+			<div id="container" class="container">
+				<div id="header" class="header">
+					<div id="formdiv">
+							<div class="ui action input">
+								<input id="searchtelinput" type="text" placeholder="管理员手机号">
+								<button class="ui red icon button" id="searchtel">
+									<i class="search icon"></i>
+								</button>
+							</div>
+							<div class="ui action input" id="secondSearch">
+								<input id="searchnameinput" type="text" placeholder="直播间名称">
+								<button class="ui red icon button" id="searchname">
+									<i class="search icon"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				<div id="tablediv" class="tablediv">
+					<table class="ui red striped table" id="modifytable">
+						<thead>
+							<tr>
+								<th>
+									<div class="ui toggle checkbox">
+										<input type="checkbox" id="allselect">
+										<label>启用</label>
+									</div>
+								</th>
+								<th>管理员手机号</th>
+								<th>管理员昵称</th>
+								<th>直播间名称</th>
+								<th>创建时间</th>
+							</tr>
+						</thead>
+						<tbody id="modifytablebody">
+							
+						</tbody>
+					</table>
+				</div>
+				
+			</div>
+
+<script>
+$(function(){
+	$("#tablediv").css('height',parseInt($(window).height())-170+'px');
+	$("#allselect").click(function(){
+		var bc_no_arr = [];
+		var bc_status = "";
+		if(this.checked){
+			$("input[name='example']").each(function(){
+				$(this).prop("checked",true);
+				var bc_no = $(this).attr("id").substr(8);
+				bc_no_arr.push(bc_no);
+			});
+			bc_status = "1";
+		}else{
+			$("input[name='example']").each(function(){
+				$(this).prop("checked",false);
+				var bc_no = $(this).attr("id").substr(8);
+				bc_no_arr.push(bc_no);
+			});
+			bc_status = "0";
+		} 
+		var bc_nostr = bc_no_arr.join(",");
+		console.log("bc_nostr",bc_nostr);
+		
+		$.ajax({
+			url:'batchChangeBcStatus.do',
+			type:"POST",
+			dataType:"json",
+			async: false,
+			data:{
+				bc_nostr:bc_nostr,
+				bc_status:bc_status
+			},
+			success:function(rep){
+				if(rep.result == "1"){
+					console.log("批量更改成功",rep);
+					$.alert("批量更改成功");
+				}else{
+					$.alert("批量更改失败");
+				}
+			}
+		});
+	}); 
+	
+	getOnliveData();
+	function getOnliveData(){
+		$.ajax({
+			url:'getViewOnliveData.do',
+			type:"POST",
+			dataType:"json",
+			async: false,
+			data:{
+			},
+			success:function(rep){
+				if(rep.result == "1"){
+					console.log("获取直播间数据成功",rep);
+					var onlivedata = rep.data;
+					drawOnliveData(onlivedata);
+				}else{
+					drawNoData();
+				}
+			}
+		});
+	}
+	
+	function drawNoData(){
+		var dom = '<tr id="nulltr" class="sheetnodata"><td id="nulltd" colspan="6">暂无数据！</td></tr>';
+		$('#modifytablebody').append($(dom));
+	}
+	
+	function drawOnliveData(data){
+		console.log("data",data);
+		var len = data.length;
+		if(len == 0){
+			drawNOData();
+		}else{
+			for(var i = 0; i < len; i ++){
+				if($.trim(data[i].bc_status) == "1"){
+					var dom = '<tr id="tr'+data[i].bc_no+'"><td><div class="ui toggle checkbox">'+
+					'<input type="checkbox" id="checkbox'+data[i].bc_no+'" name="example" checked="checked"><label>启用</label>'+
+					'</div></td><td>'+data[i].bc_manager_phone+'</td>'+
+					'<td>'+data[i].nickname+'</td>'+
+					'<td>'+data[i].bc_name+'</td>'+
+					'<td>'+data[i].bc_cttime+'</td></tr>';
+				}else{
+					var dom = '<tr id="tr'+data[i].bc_no+'"><td><div class="ui toggle checkbox">'+
+					'<input type="checkbox" id="checkbox'+data[i].bc_no+'" name="example"><label>启用</label>'+
+					'</div></td><td>'+data[i].bc_manager_phone+'</td>'+
+					'<td>'+data[i].nickname+'</td>'+
+					'<td>'+data[i].bc_name+'</td>'+
+					'<td>'+data[i].bc_cttime+'</td></tr>';
+				}
+				$('#modifytablebody').append($(dom));
+			}
+			addChangeLisener(data);
+		}
+	} 
+	
+	$('#searchtel').unbind('click').click(searchTel());
+	function searchTel(){
+		var bc_manager_phone = $.trim($("#searchtelinput").val());
+		if(bc_manager_phone==null||bc_manager_phone==""){
+			return;
+		}else{
+			$.ajax({
+				url:'selectViewOnliveByPhone.do',
+				type:"POST",
+				dataType:"json",
+				async: false,
+				data:{
+					bc_manager_phone:bc_manager_phone
+				},
+				success:function(rep){
+					if(rep.result == "1"){
+						console.log("搜索直播间数据成功",rep);
+						var teldata = rep.data;
+						drawSearchData(teldata);
+					}else{
+						drawNoSearchData();
+					}
+				}
+			});
+		}
+	}
+	function drawNoSearchData(){
+		var dom = '<tr class="sheetnodata"><td colspan="6">未查询到相关数据！</td></tr>';
+		$('#modifytablebody').html($(dom));
+	}
+	
+	$('#searchname').on('click',function(){
+		var bc_name = $.trim($("#searchnameinput").val());
+		console.log("bc_name",bc_name);
+		if(bc_name==null||bc_name==""){
+			return;
+		}else{
+			$.ajax({
+				url:'selectViewOnliveBybc_name.do',
+				type:"POST",
+				dataType:"json",
+				async: false,
+				data:{
+					bc_name:bc_name
+				},
+				success:function(rep){
+					if(rep.result=="1"){
+						console.log("搜索直播间数据成功",rep);
+						var namedata = rep.data;
+						drawSearchData(namedata);
+					}else{
+						drawNoSearchData();
+					}
+				}
+			});
+		}
+	});
+	
+	function drawSearchData(data){
+		console.log("data",data);
+		var len = data.length;
+		if(len >= 1){
+			var dom = "";
+			for(var i = 0; i < len; i ++){
+				if($.trim(data[i].bc_status) == "1"){
+					dom += '<tr id="tr'+data[i].bc_no+'"><td><div class="ui toggle checkbox">'+
+					'<input type="checkbox" id="checkbox'+data[i].bc_no+'" name="example" checked="checked"><label>启用</label>'+
+					'</div></td><td>'+data[i].bc_manager_phone+'</td>'+
+					'<td>'+data[i].nickname+'</td>'+
+					'<td>'+data[i].bc_name+'</td>'+
+					'<td>'+data[i].bc_cttime+'</td></tr>';
+				}else{
+					dom += '<tr id="tr'+data[i].bc_no+'"><td><div class="ui toggle checkbox">'+
+					'<input type="checkbox" id="checkbox'+data[i].bc_no+'" name="example"><label>启用</label>'+
+					'</div></td><td>'+data[i].bc_manager_phone+'</td>'+
+					'<td>'+data[i].nickname+'</td>'+
+					'<td>'+data[i].bc_name+'</td>'+
+					'<td>'+data[i].bc_cttime+'</td></tr>';
+				}
+				$('#modifytablebody').html($(dom));
+			}
+			addChangeLisener(data);
+		}else{
+			var dom = '<tr class="sheetnodata"><td colspan="6">未查询到相关数据！</td></tr>';
+			$('#modifytablebody').html($(dom));
+		}
+	}		
+	
+	
+	function addChangeLisener(data){
+		var len = data.length;
+		for(var i = 0; i < len; i ++){
+			$('#checkbox'+data[i].bc_no+'').on('click',function(){
+				var cbox = $(this);
+				var bc_status = null;
+				var bc_no = cbox.prop("id").substr(8);
+				var no = parseInt(bc_no);
+				console.log("bc_no",bc_no);
+				if(cbox.prop("checked")){
+					bc_status = "1";
+				}else{
+					bc_status = "0";
+				}
+				
+				$.ajax({
+					url:'changeBcStatus.do',
+					type:"POST",
+					dataType:"json",
+					async: false,
+					data:{
+						bc_no:bc_no,
+						bc_status:bc_status
+					},
+					success:function(rep){
+						if(rep.result == "1"){
+							$.alert("直播间状态修改成功！");
+						}else{
+							$.alert("直播间状态修改失败！");
+						}
+					}
+				});
+			});
+			
+		}
+	}	
+});
+</script>

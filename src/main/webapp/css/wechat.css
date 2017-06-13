@@ -1,0 +1,188 @@
+/* 公共样式区 */
+	tr,td,th,h,p{
+		color:#000000;
+	}
+	td , th{
+		 vertical-align:middle !important;
+	}
+	.container {
+	width: 100%;
+	height:100%;
+	margin: 0px;
+	padding: 15px 25px;
+	background-color: #fafafb;
+}
+
+.header {
+	position:relatice;
+	padding: 20px 25px;
+	border: solid 1px #dedede;
+	border-radius: 0.3em;
+	background: #FFFFFF;
+	margin-bottom: 15px;
+}
+
+.tablediv {
+    margin-top:10px;
+	padding: 20px;
+	background-color: #FFFFFF;
+	border: solid 1px #dedede;
+	border-radius: 0.3em;
+	overflow-y:auto;
+}
+
+	
+	.modifyBtn {
+		/* position: absolute;
+		top: 4px;
+		right: 2%;
+		background: #DB2828 !important; */
+	}
+	.removeBtn {
+		position: absolute;
+		background: #DB2828 !important; 
+		display: inline-block;
+		right:14%;
+	}
+	.removeBtn:hover {
+		color: #fff !important; 
+		background: #C91818 !important;
+	}
+	/*修改界面*/
+	.modifyDiv {
+		height: 100%;
+		width: 100%;
+	}
+	
+	.modifyBtn:hover {
+		color: #fff !important;
+		background: #C91818 !important;
+	}
+	
+	  	.modifyTitle.title {
+  		display:inline-block;
+  	}
+  	.modifyContent.title {
+  	    margin-top: -17px;
+    	margin-left: 150px;
+    	width: 75%;
+  	}
+	/* 空数据字体 */
+	.sheetnodata{
+		text-align:center;
+	}
+	
+	.selectData{
+  		color:#9F9F9F;
+  		padding-left:50px;
+  		margin-top:13px;
+  	}
+	
+	.tishidata{
+	background-color: #DB2828;
+	border-radius: 0.5em;
+	color:#fff;
+	width:100%;
+	height:40px;
+	text-align:center;
+	padding:10px;
+	letter-spacing: 10px;
+	margin-bottom:10px;
+}
+
+	.NoData {
+		cursor: pointer;
+		color: #db2828 !important;
+	}
+	
+	.NoData:hover {
+		color: #2185d0 !important;
+	}
+	/* 灰色内容字体 */
+	
+	.contentData {
+		color: rgba(128, 128, 128, 0.9);
+	}
+	/* 修改界面 最外层*/
+	
+	.modifyDiv {
+		width: 100%;
+		position: relative;
+	}
+	/* 修改界面 内容层*/
+	
+	.slideDiv {
+		width: 100%;
+		overflow-y: auto;
+		background: #fff;
+		padding-bottom: 20px;
+	}
+	/* 修改界面 提交层*/
+	
+	.submitFixDiv {
+		height: 50px;
+		position: relative;
+		width: 100%;
+		background: #fff;
+		vertical-align: middle;
+		border-top: 1px solid #eeece8;
+	}
+	/* 修改界面 提交按钮 */
+	
+	.submitFixDiv .submitBtn {
+		background: #DB2828;
+		color: #fff;
+		height: 34px;
+		text-align: center;
+		line-height: 30px;
+		border-radius: 4px;
+		font-weight: 500;
+		cursor: pointer;
+		margin-top: 8px;
+		margin-left: 30%;
+		width: 40%;
+	}
+	
+	.submitFixDiv .submitBtn:hover {
+		background: #C91818;
+	}
+	/* 修改界面 panel*/
+	
+	.modifyPanel {
+		width: 300px;
+		padding: 5px;
+		height: auto;
+	}
+	/* 修改界面 panel Title */
+	
+	.modifyTitle {
+		margin-left: 4%;
+		margin-top: 10px;
+		cursor: default;
+		color: #db2828;
+		font-weight: 500;
+	}
+	
+	.modifyContent {
+		margin-left: 7%;
+		margin-top: 12px;
+		width: 89%;
+	}
+	
+	.full {
+		margin-left: 0;
+		width: 100%;
+	}
+	/* 分隔条 */
+	
+	.divider {
+		margin-top: 10px;
+		margin-bottom: 10px;
+		border: 0;
+		border-top: 1px solid #e2e6ec;
+		width: 88%;
+		margin-left: 6%;
+		box-sizing: content-box;
+		height: 0;
+	}
+	

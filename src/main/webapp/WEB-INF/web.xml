@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" id="WebApp_ID" version="3.1">
+  <display-name>wechatcore</display-name>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>WEB-INF/dispatcher-servlet.xml</param-value>
+  </context-param>
+  <servlet>
+    <servlet-name>wxcall</servlet-name>
+    <servlet-class>com.alienlab.wechat.core.servlet.CoreServlet</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>wxcall</servlet-name>
+    <url-pattern>/wxcall</url-pattern>
+  </servlet-mapping>
+  <!-- 配置spring核心servlet -->
+  <servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <description>
+      Onlive plugin start</description>
+    <display-name>OnliveStart</display-name>
+    <servlet-name>OnliveStart</servlet-name>
+    <servlet-class>com.alienlab.wechat.onlive.service.OnliveStart</servlet-class>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <!-- url-pattern配置为/，不带文件后缀，会造成其它静态文件(js，css等)不能访问。如配为*.do，则不影响静态文件及jsp的访问，控制所有do请求 -->
+  <servlet-mapping>
+    <servlet-name>dispatcher</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>OnliveStart</servlet-name>
+    <url-pattern>/OnliveStart</url-pattern>
+  </servlet-mapping>
+
+  <!--<servlet>-->
+    <!--<servlet-name>PicUploadServlet</servlet-name>-->
+    <!--<servlet-class>com.alienlab.wechat.picbox.PicUploadServlet</servlet-class>-->
+  <!--</servlet>-->
+  <!--<servlet-mapping>-->
+    <!--<servlet-name>PicUploadServlet</servlet-name>-->
+    <!--<url-pattern>/picboxservlet/upload</url-pattern>-->
+  <!--</servlet-mapping>-->
+
+
+</web-app>

@@ -1,0 +1,141 @@
+<style>
+.whitePanel{
+		height: auto; 
+		overflow: hidden; 
+		margin-top:3px;
+		padding: 20px;
+		background-color: #FFFFFF;
+		border: solid 1px #dedede;
+		border-radius: 0.3em; 
+	}
+.texttitle{
+	padding-bottom:5px;
+}
+#Info_title,#info_time{
+	height:36px;
+	width:548px;
+}
+#textContentc{
+	margin-top:18px;
+}
+
+#Info_title_time_text{
+	display:inline-block;
+	vertical-align:top;
+}
+#Info_description_text{
+	margin-left:20px;
+	display:inline-block;
+	vertical-align:top;
+	width:548px;
+}
+#Info_title,#Info_time,#Info_description,#Info_content{
+	margin-left:18px;
+}
+#Info_content{
+	width:1138px;
+}
+.textbtndiv{
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+}
+#btnText{
+	margin-top:8px;
+	width:540px;
+	height:44px;
+}
+#submitp{
+	color:#FFFFFF;
+}
+#btnText:hover {
+		color: #fff !important; 
+		background: #C91818 !important;
+	}
+</style>
+
+<div id="container" class="textContent container">
+	<div class="whitePanel">
+		<form class="ui form">
+		<div id="Info_title_time_text">
+		   	<div class="field">
+		      	<label class="texttitle"><i class="tags icon red"></i>信息标题</label>
+		      	<input id="Info_title" type="text" placeholder="标题">
+	    	</div>
+	        <div class="weui_cell field">
+	    		<label class="texttitle"><i class="tags icon red"></i>时间</label>
+		    	<input class="weui_input"  id="Info_time" type="datetime-local"  placeholder="设置直播结束时间">
+		    </div> 
+		 </div>
+		 <div id="Info_description_text">
+		 	<div class="field">
+			    <label class="texttitle"><i class="tags icon red"></i>信息摘要</label>
+			    <textarea rows="5" id="Info_description"></textarea>
+	 		</div> 
+		 </div>
+		</form>
+	</div>
+	<div class="tablediv" id="textContentc">
+		<form class="ui form">
+		 	<div class="field">
+		      	<label class="texttitle"><i class="tags icon red"></i>信息内容</label>
+		      	<textarea rows="14" id="Info_content"></textarea>
+		 	</div> 
+		</form>
+	</div>
+	<div class="textbtndiv">
+		<button id="btnText" class="big ui red button"><div id="submitp">新&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;增</div></button>
+	</div>
+</div>
+
+<script>
+
+$(function(){
+	//动态样式
+	$('.tablediv').css('height',parseInt($(window).height()) -325 +'px');
+	
+	var Info_author = framework.getAppdata("index","author") ;//当前登录者 //framework.user_.loginname;
+	console.log("信息作者1:",Info_author);
+	var Info_type="text";
+	console.log("2:",Info_type);
+	$("#btnText").unbind('click').click(function(){ 
+		var Info_title=$("#Info_title").val();
+		console.log("3:",Info_title);
+		var Info_time=$("#Info_time").val();
+		console.log("4:",Info_time);
+		var Info_description=$("#Info_description").val();
+		console.log("5:",Info_description);
+		var Info_content=$("#Info_content").val();
+		console.log("6:",Info_content);
+		$.ajax({
+			url:"addTextContent.do",
+			type:"POST",
+			dataType:"jsonp",
+			async: false,
+			data:{
+				Info_author:Info_author,
+				Info_type:Info_type,
+				Info_title:Info_title,
+				Info_time:Info_time,
+				Info_description:Info_description,
+				Info_content:Info_content
+			},
+			success:function(rep){ 
+				if(rep.result == 0){
+					$.alert("新增文本内容失败");
+				}else{
+					$.alert("新增文本内容成功");
+					location.reload();
+				}
+			}
+		});
+		
+	});
+	
+	
+	
+})
+	
+	
+</script>

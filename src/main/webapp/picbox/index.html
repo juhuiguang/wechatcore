@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="format-detection" content="telephone=no" />
+		<title></title>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#jpg {}
+			
+			#preview {
+				width: 100%;
+				display: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="jpg"></canvas>
+	</body>
+	<script type="text/javascript" src="js/jquery-1.11.0.js"></script>
+	<script type="text/javascript" src="js/text.js"></script>
+	<script src="http://api.map.baidu.com/api?v=2.0&ak=WaxXssCdjo3bQ8S9GWRI35VQ3FMbB8De" type="text/javascript"></script>
+	<script>
+		var width = $(window).width();
+		var height = $(window).height();
+		var base64 = [];
+		var c = document.getElementById("jpg");
+		var ctx = c.getContext('2d');
+		var date = new Date();
+		var weather = {
+			temperature: "18 ~ 15℃",
+			weather: "阴",
+			wind: "东风微风"
+		};
+		var WEEK=["星期天","星期一","星期二","星期三","星期四","星期五","星期六"];
+		
+		var local = new BMap.LocalCity();
+		
+		
+		
+		local.get(function(city) {
+			console.log(city);
+			var url = "http://api.map.baidu.com/telematics/v3/weather?location=" + city.name + "&output=json&ak=WaxXssCdjo3bQ8S9GWRI35VQ3FMbB8De";
+			$.ajax({
+				type: "get",
+				url: url,
+				dataType: "jsonp",
+				jsonp: "callback",
+				jsonpCallback: "weathercallback",
+				async: true,
+				success: function(rep) {
+					if (rep.error == 0) {
+						weather = rep.results[0].weather_data[0];
+					}
+					drawing();
+				}
+			});
+		});
+
+		function getpic() {
+			var url = "resource/boxpic/";
+			var num = Math.random() * 160;
+			var numstr = "";
+			num = parseInt(num, 10);
+			if (num < 10) {
+				numstr = "00" + num;
+			} else if (num >= 10 && num < 100) {
+				numstr = "0" + num;
+			} else {
+				numstr = num + "";
+			}
+			url += numstr + ".jpg";
+			return url;
+		}
+
+		function gettext() {
+			var len = window.textarr.length;
+			var num = Math.random() * len;
+			num = parseInt(num, 10);
+			return window.textarr[num];
+		}
+		
+		function drawweathertext(ctx){
+			ctx.font="normal normal normal 100% 黑体";
+			ctx.fillStyle = "white";
+			var dtext=date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+			var wtext=WEEK[date.getDay()];
+			var weatext=weather.weather+" "+weather.temperature+" "+weather.wind;
+			//绘制日期
+			ctx.fillText(dtext+" "+wtext, width * 0.25, height * (1-(0.19 + 0.8 * 0.07)), width * 0.5);
+			//绘制天气
+			ctx.fillText(weatext, width * 0.25, height * (1-(0.19 + 0.3 * 0.07)), width * 0.5);
+		}
+		c.width = width;
+		c.height = height;
+		ctx.clearRect(0, 0, c.width, c.height);
+		ctx.rect(0, 0, c.width, c.height);
+		ctx.fillStyle = '#fff';
+		ctx.fill();
+		
+		function drawing() {
+			
+			var img = new Image;
+			//img.crossOrigin = 'Anonymous'; //解决跨域
+			img.src = getpic();
+			img.onload = function() {
+				ctx.drawImage(img, 0, 0, c.width, c.height);
+				ctx.strokeStyle = "#ffffff";
+				ctx.lineWidth = 5;
+				ctx.strokeRect(width * 0.19, height * 0.19, width * 0.618, height * 0.618);
+				ctx.font = "normal normal normal 150%  黑体";
+				ctx.fillStyle = "white";
+				var text = gettext();
+				var tarray = text.split("/");
+				for (var i = 0; i < tarray.length; i++) {
+					ctx.fillText(tarray[i], width * 0.25, height * (i * 0.07 + 0.19 + 0.35), width * 0.5);
+				}
+				var greeting = "早安";
+				ctx.font = "normal normal bold 350% 黑体";
+				ctx.fillStyle = "white";
+				ctx.fillText(greeting, width * 0.25, height * (0.19 + 2 * 0.07), width * 0.5);
+				
+				
+				drawweathertext(ctx);
+				var logoimg=new Image;
+				logoimg.src="resource/logo.png";
+				logoimg.onload=function(){
+					ctx.drawImage(logoimg, width*0.4, (height-width*0.22), width*0.2, c.width*0.2);
+				}
+				//base64=new Array();
+				//base64.push(c.toDataURL("image/png"));
+				//$("#preview").width(width).height(height).attr("src",base64[0]);
+			}
+			
+		}
+		
+		
+		//drawing();
+		$("#jpg").click(function() {
+			drawing();
+			//window.location.href=c.toDataURL("image/png");
+		});
+	</script>
+
+</html>

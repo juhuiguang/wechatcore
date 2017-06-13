@@ -1,0 +1,192 @@
+<style>
+i{
+	color:#FFFFFF;
+}
+
+#adduser {
+	display: inline-block;
+	vertical-align: top;
+	margin-right:11px;
+}
+
+#adduserp{
+	color:#ffffff;
+	font-size:11px;
+}
+
+#del_model{
+	margin-top:3px;
+}
+
+</style>
+
+<div id="container" class="namelist container">
+	<div id="header" class="header">
+		<div id="searchdiv" class="ui action input">
+			<input id="searchInput" type="text" placeholder="手机号搜索...">
+			<button class="ui red icon button" id="nlsearch">
+				<i class="search icon"></i>
+			</button>
+		</div>
+		<div id="adduser" class="ui red right floated small labeled icon button modifyBtn" name="addNameList">
+			<i class="user icon"></i><p id="adduserp">Add User</p>
+		</div>
+		<div id="del_model" class="ui  gray circular icon button removeBtn">
+			<i class= "trash outline icon"></i>
+		</div>
+	</div>
+	<div id="tablediv" class="tablediv">
+		<table class="ui red striped table">
+			<thead>
+				<tr>
+				<th>
+					<div class="ui checkbox">
+						<input type="checkbox" id="allChk">
+						<label></label>
+					</div>
+				</th>
+					<th>微信昵称</th>
+					<th>手机号码</th>
+					<th>允许创建数量</th>
+					<th>有效期限</th>
+					<th>状态</th>
+					<th>编辑</th>
+				</tr>
+			</thead>
+			<tbody id="sheetNameListBody">
+				<tr class="sheetnodata"><td colspan="7">暂无数据！</td></tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script>
+
+$(function(){
+	//动态样式
+	$('#tablediv').css('height',parseInt($(window).height()) - 176 + 'px'); 
+	
+	// 全选 
+	$("#allChk").click(function() { 
+		$("input[name='subChk']").prop("checked",this.checked); 
+	}); 
+	// 单选 
+	var subChk = $("input[name='subChk']") 
+	subChk.click(function() { 
+	$("#allChk").prop("checked", subChk.length == subChk.filter(":checked").length ? true:false); 
+	}); 
+	/* 批量删除 */ 
+	$("#del_model").click(function() { 
+	// 判断是否至少选择一项 
+		var checkedNum = $("input[name='subChk']:checked").length; 
+		if(checkedNum == 0) { 
+			$.alert("请选择至少一项！"); 
+			return; 
+		} 
+	// 批量选择 
+	$.confirm({
+			msg          :"确定删除选中白名单吗？",
+			btnSure     :'确定', 
+			btnCancel  :'取消',
+			sureDo       : function(){	 
+				var checkedList = new Array(); 
+				$("input[name='subChk']:checked").each(function() { 
+				checkedList.push($(this).val()); 
+				}); 
+				$.ajax({ 
+					type: "POST", 
+					url: "banchDeleteNameListByPhone.do", 
+					dataType : "jsonp",
+					data: {'delitems':checkedList.toString()}, 
+					 success: function(rep) { 
+						 if(rep.result == 0){
+								$.alert("删除失败");
+							}else{
+								$("[name ='subChk']:checkbox").attr("checked", false); 
+								window.location.reload(); 
+								//刷新次界面
+							}
+					} 
+				});
+			}, 
+			cancelDo:function(){
+				
+			}
+		})
+		
+	
+	}); 
+	
+	//查询所有白名单信息
+	getNameListData();
+	function getNameListData(){
+		$.ajax({
+			url:'getNameListData.do',
+			type:"POST",
+			dataType:"json",
+			data:{
+			},
+			success : function(rep) {
+				var nlData=rep.data;
+				console.log("获取白名单成功》》》》》",nlData);
+				drawNameListData(nlData);
+			}
+		});
+	}
+
+	//根据手机号查询白名单
+	$("#nlsearch").unbind('click').click(function searchNameListDataByPhone(){
+		var namelist_phone = $("#searchInput").val();
+		if(namelist_phone==null||namelist_phone==""){
+			return;
+		}else{
+			$.ajax({
+				url : "selectNameListByPhone.do",
+				type : "POST",
+				dataType : "json",
+				data : {
+					namelist_phone:namelist_phone
+				},
+				success : function(rep) {
+					var nlDataByp=rep.data;
+					console.log("根据手机号查询白名单成功》》》》》",nlDataByp);
+					if(nlDataByp){
+						drawNameListData(nlDataByp);
+					}else{
+						drawNoNameListData();
+					}
+				}
+			});
+		}
+		
+	});
+	
+	//查询出数据
+	function drawNameListData(nlData){
+		$('.sheetnodata').remove();
+		var dom="";
+		 for(var i=0;i<nlData.length;i++){
+			 dom+='<tr><td><div class="ui checkbox"><input type="checkbox" name="subChk" value="'+nlData[i].namelist_phone+'">'+
+				'<label></label></div></td><td>'+nlData[i].nickname+'</td><td>'+nlData[i].namelist_phone+'</td><td>'+
+			 nlData[i].namelist_count+'</td><td>'+nlData[i].namelist_endtime+'</td><td>'+nlData[i].namelist_status+'</td><td>'+
+			 '<div class="ui mini gray circular icon button modifyBtn" name="modifyNameList" addr="'+nlData[i].namelist_phone+'"'+
+			 'extra="'+nlData[i].namelist_phone+'"><i class="write tiny icon"></i></div></td>';
+		 }
+		 $("#sheetNameListBody").html($(dom));
+		//点击修改事件
+		 clickModify();
+	}
+ 	
+	//查询出空数据
+	function drawNoNameListData(){
+		var dom='<tr class="sheetnodata"><td colspan="7">未搜索到相关数据</td></tr>';
+		$("#sheetNameListBody").html($(dom)); 
+	}
+	
+	//点击添加事件
+	clickModify(); 
+	
+})
+	
+	
+</script>
